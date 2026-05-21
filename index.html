@@ -1,312 +1,648 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wedding Project Plan</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
-            background: #f8f9fa;
-            font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
-            color: #333333;
+            background: #f6f8fb;
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            color: #333;
+            min-height: 100vh;
+            padding-bottom: 32px;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+        }
+
+        html {
+            min-height: 100%;
+            touch-action: pan-y;
         }
 
         /* Header */
+
         .header {
-            background: white;
-            padding: 40px 0;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,.04);
-            border-bottom: 3px solid #1f3b64;
-        }
-        .header h1 {
-            font-weight: 800;
-            color: #c40000;
-            letter-spacing: 2px;
-            font-size: 2.2rem;
-        }
-        .header .subtitle {
-            font-size: 0.9rem;
-            color: #8a94a6;
-            margin-top: 8px;
-            letter-spacing: 4px;
+            background: linear-gradient(to bottom, #ffffff, #fafbfc);
+            padding: 48px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 1px solid #e9edf3;
         }
 
-        /* Highly Compressed Card Setup */
+        .header h1 {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: #c40000;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #8b95a7;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+        }
+
+        /* Timeline */
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(to bottom, #d8e0ea, #eef2f6);
+            transform: translateX(-50%);
+        }
+
+        @media(max-width:768px) {
+            .timeline::before {
+                display: none;
+            }
+        }
+
+        /* Cards */
+
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(31, 59, 100, 0.04);
-            transition: all 0.25s ease;
-            padding: 16px 20px;
+            border-radius: 18px;
             background: white;
+            padding: 0;
+            box-shadow: 0 8px 24px rgba(31, 59, 100, .05);
+            transition: .25s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            animation: fadeUp .6s ease;
         }
+
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(31, 59, 100, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(31, 59, 100, .10);
         }
 
-        /* Card Typography */
-        .title {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #1f3b64;
-            margin-bottom: 2px;
+        .card-body {
+            padding: 22px;
         }
 
-        /* 純黑文字與微笑弧線日曆圖標 */
-        .date {
-            font-size: 0.9rem;
-            color: #000000;
+        .card-body[data-bs-toggle] {
+            cursor: pointer;
+        }
+
+        .summary-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #f3f4f8;
+            color: #495057;
+            font-size: .82rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+
+        .detail-content {
+            padding: 18px 22px 22px;
+            border-top: 1px solid #eef2f6;
+            background: white;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(196, 0, 0, .07), transparent 70%);
+        }
+
+        .main-event {
+            border: 2px solid rgba(196, 0, 0, .10);
+            background: linear-gradient(145deg, #fff, #fff9f9);
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #1f3b64;
+            margin-bottom: 4px;
+        }
+
+        .title.red {
+            color: #c40000;
+        }
+
+        .date {
+            font-size: .96rem;
+            color: #000;
+            font-weight: 700;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
         }
+
         .date::before {
             content: "";
-            display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 17px;
+            height: 17px;
             margin-right: 8px;
-            /* 套用微笑弧線日曆 SVG */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z'/%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
         }
 
-        /* Content Layout Styling */
-        .info-row {
-            margin-bottom: 6px;
-        }
-        .info-group {
-            margin-bottom: 4px;
-        }
         .label {
-            font-size: 0.75rem;
-            color: #8a94a6;
+            font-size: .75rem;
+            color: #97a1b2;
             font-weight: 700;
-            margin-bottom: 0;
         }
+
         .value {
-            font-weight: 600;
+            font-size: .9rem;
+            font-weight: 700;
             color: #495057;
-            font-size: 0.9rem;
+        }
+
+        .info-group {
+            margin-bottom: 8px;
+        }
+
+        .detail-title {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #1f3b64;
+            margin-bottom: 16px;
+            margin-top: 0;
+        }
+
+        .detail-section {
+            margin-bottom: 18px;
+            line-height: 1.8;
+            color: #555;
+            font-size: .92rem;
+        }
+
+        .detail-section b {
+            color: #1f3b64;
+        }
+
+        .map-btn {
+            display: inline-block;
+            margin-top: 8px;
+            background: #1f3b64;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 700;
+        }
+
+        .map-btn:hover {
+            background: #162b49;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="header text-center">
-    <h1>寰 & 璇 婚禮準備流程</h1>
-    <div class="subtitle">以下流程隨時線上更新，請隨時關注</div>
-</div>
-
-<div class="container pb-5" style="max-width: 750px;">
-    <div class="row g-3">
-        
-        <!-- 1: 選婚紗照禮服 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">選婚紗照禮服</div>
-                <div class="date">2026/08/01 (六) 16:00</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台北 法國巴黎婚紗公司</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">寰 & 璇</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">挑選拍照用婚紗, 禮服, 西裝</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2: 台東提親 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">台東提親</div>
-                <div class="date">2026/08/22 (六)</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台東</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">男方家 & 女方家</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">婚禮流程討論, 提親, 喜餅, 家族見面團聚</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3: 拍攝婚紗照 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">拍攝婚紗照</div>
-                <div class="date">2026/09/05 (六)</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">苗栗 愛麗絲古堡</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">寰 & 璇 ＋ 攝影團隊</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">婚紗拍攝與外景取景</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4: 台東祖先拜拜 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">台東祖先拜拜</div>
-                <div class="date">2026/11/01 (日) 09:00 - 10:50</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台東</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">寰 & 璇 & 女方家族</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">告知祖先婚事安排</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5: 安床 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">安床</div>
-                <div class="date">2027/01/22 (五) 23:00 - 23:50</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">新竹 竹北家</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">寰 & 璇 & 璇爸爸媽媽</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">依吉時完成安床儀式</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6: 結婚登記 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">結婚登記</div>
-                <div class="date">2027/01/23 (六) 09:00 - 10:50</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">新竹 竹北戶政事務所</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">男方家 & 女方家</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">法律婚姻完成登記</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 7: 台北婚禮試菜 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title">台北婚禮試菜</div>
-                <div class="date">2027/01/23 (六)</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台北 大直金色三麥歌劇場</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">男方家 & 女方家</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">婚宴菜色確認與試吃</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 8: 台北婚禮 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title" style="color: #c40000">台北婚禮</div>
-                <div class="date">2027/03/28 (日) 12:00</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台北 大直金色三麥歌劇場</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">男方家 & 女方家 & 所有親友賓客</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">拜別父母小儀式 09:00 - 10:50 / 婚禮開始 12:00</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 9: 台東婚禮 -->
-        <div class="col-12">
-            <div class="card">
-                <div class="title" style="color: #c40000">台東婚禮</div>
-                <div class="date">2027/04/17 (六) 17:00 - 21:00</div>
-                <div class="row info-row">
-                    <div class="col-6 info-group">
-                        <div class="label">地點</div>
-                        <div class="value">台東</div>
-                    </div>
-                    <div class="col-6 info-group">
-                        <div class="label">出席人</div>
-                        <div class="value">男方家 & 女方家 & 所有親友賓客</div>
-                    </div>
-                </div>
-                <div class="info-group">
-                    <div class="label">說明</div>
-                    <div class="value">歸寧家宴日</div>
-                </div>
-            </div>
-        </div>
-
+    <div class="header">
+        <h1>寰 & 璇的婚禮</h1>
+        <div class="subtitle">以下流程隨時線上更新，請隨時關注</div>
     </div>
-</div>
+
+    <div class="container pb-5" style="max-width:1100px;">
+
+        <div class="row g-4 timeline">
+
+            <!-- 1 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail1" aria-expanded="false">
+                        <div class="title">選婚紗照禮服</div>
+                        <div class="date">2026/08/01 (六) 16:00</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台北 法國巴黎婚紗</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">寰 & 璇</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">法國巴黎婚紗</span>
+                            <span class="chip">1套白紗2套禮服</span>
+                            <span class="chip">2套西裝</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail1">
+                        <div class="detail-title">詳細資訊</div>
+
+                        <div class="detail-section">
+                            <div class="label">地址</div>
+                            <div>臺北市中山區集英里中山北路二段116號</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">需攜帶</div>
+                            <div>膚色NuBra</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">注意事項</div>
+                            <div>確認攝影風格</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 2 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail2" aria-expanded="false">
+
+                        <div class="title">台東提親</div>
+                        <div class="date">2026/08/22 (六)</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台東</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">男方家 & 女方家</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">婚禮流程討論</span>
+                            <span class="chip">提親</span>
+                            <span class="chip">喜餅</span>
+                            <span class="chip">家族團聚</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail2">
+                        <div class="detail-title">詳細資訊</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail3" aria-expanded="false">
+
+                        <div class="title">拍攝婚紗照</div>
+                        <div class="date">2026/09/05 (六)</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">苗栗 愛麗絲古堡</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">寰 & 璇 + 攝影團隊</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">包車5人前往</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail3">
+                        <div class="detail-title">詳細資訊</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 4 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail4" aria-expanded="false">
+
+                        <div class="title">台東祖先拜拜</div>
+                        <div class="date">2026/11/01 (日) 09:00 - 10:50</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台東</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">寰 & 璇 & 女方家族</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">台東</span>
+                            <span class="chip">告知祖先婚事安排</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail4">
+                        <div class="detail-title">詳細資訊</div>
+
+                        
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 5 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail5" aria-expanded="false">
+
+                        <div class="title">安床</div>
+                        <div class="date">2027/01/22 (五) 23:00 - 23:50</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">竹北家</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">寰 & 璇 & 璇爸爸媽媽</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">安床儀式</span>
+                            <span class="chip">全新床包</span>     
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail5">
+                        <div class="detail-title">詳細資訊</div>                        
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 6 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail6" aria-expanded="false">
+
+                        <div class="title">結婚登記</div>
+                        <div class="date">2027/01/23 (六) 09:00 - 10:50</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">竹北戶政事務所</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">男方家 & 女方家</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">法律婚姻完成登記</span>
+                            <span class="chip">攝影團隊</span>
+                            <span class="chip">測試妝容</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail6">
+                        <div class="detail-title">詳細資訊</div>
+
+                        <div class="detail-section">
+                            <div class="label">需攜帶</div>
+                            <div>身分證、印章、戶口名簿</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">流程</div>
+                            <div>文件確認<br>簽名登記<br>拍照留念</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 7 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail7" aria-expanded="false">
+
+                        <div class="title">台北婚禮試菜</div>
+                        <div class="date">2027/01/23 (六)</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台北 大直金色三麥歌劇院</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">男方家 & 女方家</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">中西合併</span>
+                            <span class="chip">確認菜色</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail7">
+                        <div class="detail-title">詳細資訊</div>
+
+                        <div class="detail-section">
+                            <div class="label">試菜內容</div>
+                            <div>主餐、甜點、酒水確認</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">目的</div>
+                            <div>確認婚宴最終菜單</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 8 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card main-event event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail8" aria-expanded="false">
+
+                        <div class="title red">台北婚禮</div>
+                        <div class="date">2027/03/28 (日) 12:00</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台北 大直金色三麥歌劇院</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">男方家 & 女方家 & 所有親友賓客</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">拜別父母小儀式</span>
+                            <span class="chip">婚宴</span>
+                            <span class="chip">送客</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail8">
+                        <div class="detail-title">婚禮詳細流程</div>
+
+                        <div class="detail-section">
+                            <div class="label">09:00 - 10:50</div>
+                            <div>拜別父母儀式</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">11:30</div>
+                            <div>賓客入場</div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="label">12:00</div>
+                            <div>婚宴正式開始</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 9 -->
+            <div class="col-12 col-md-6">
+
+                <div class="card main-event event-card">
+                    <div class="card-body" data-bs-toggle="collapse" data-bs-target="#detail9" aria-expanded="false">
+
+                        <div class="title red">台東婚禮</div>
+                        <div class="date">2027/04/17 (六) 17:00 - 21:00</div>
+
+                        <div class="row">
+                            <div class="col-6 info-group">
+                                <div class="label">地點</div>
+                                <div class="value">台東</div>
+                            </div>
+
+                            <div class="col-6 info-group">
+                                <div class="label">出席人</div>
+                                <div class="value">男方家 & 女方家 & 所有親友賓客</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-chips">
+                            <span class="chip">歸寧</span>
+                            <span class="chip">家宴</span>
+                        </div>
+                    </div>
+
+                    <div class="collapse detail-content" id="detail9">
+                        <div class="detail-title">詳細資訊</div>
+
+                        
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var collapses = document.querySelectorAll('.detail-content');
+            collapses.forEach(function (collapseEl) {
+                collapseEl.addEventListener('show.bs.collapse', function () {
+                    // 收起其他已展開的內容（只保留一個開啟）
+                    document.querySelectorAll('.detail-content.show').forEach(function (openEl) {
+                        if (openEl !== collapseEl) {
+                            var inst = bootstrap.Collapse.getInstance(openEl) || bootstrap.Collapse.getOrCreateInstance(openEl, { toggle: false });
+                            inst.hide();
+                        }
+                    });
+
+                    var card = collapseEl.closest('.event-card');
+                    if (card) { card.classList.add('expanded'); }
+                });
+                collapseEl.addEventListener('hide.bs.collapse', function () {
+                    var card = collapseEl.closest('.event-card');
+                    if (card) { card.classList.remove('expanded'); }
+                });
+            });
+        });
+    </script>
 
 </body>
+
 </html>
