@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pauty's Girl</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 全面收斂字體大小與顏色，文字粗細完全統一，顏色一律為深黑灰色 */
+        body { background-color: #f8f9fa; font-size: 12px; color: #212529; font-weight: normal; }
+        .table-responsive { white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .card { border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        
+        /* 緊湊行距：padding 壓縮至 4px，縮減行高 */
+        .table-sm th, .table-sm td { 
+            padding: 5px 6px !important; 
+            vertical-align: middle; 
+            border-color: #ededed; 
+            font-size: 12px; 
+            font-weight: normal; 
+            color: #212529 !important;
+            line-height: 1.3 !important;
+        }
+        
+        /* 排序提示 */
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { background-color: #e9ecef !important; }
+        th.sortable::after { content: ""; }
+        
+        /* 狀態標籤一律扁平化 */
+        .badge { padding: 3px 5px; font-size: 11px; font-weight: normal !important; }
+        .loading-spy { text-align: center; padding: 20px; color: #6c757d; }
+        
+        /* 🌟 備註欄位：字體獨立縮小至 11px，寬度與折行優化 */
+        .note-cell {
+            white-space: pre-line !important;
+            min-width: 150px;
+            max-width: 250px;
+            font-size: 10px !important;
+        }
+
+        /* ---------------- 狀態標籤顏色 ---------------- */
+        .badge-optimistic { background-color: #198754; color: #fff; }
+        .badge-stable { background-color: #0d6efd; color: #fff; }
+        .badge-cooled { background-color: #f8d7da; color: #b02a37; border: 1px solid #f5c2c7; }
+        .badge-ghosted { background-color: #e2e3e5; color: #41464b; }
+        .badge-nodev { background-color: #fff; color: #212529; border: 1px solid #dee2e6; }
+        
+        /* ---------------- 資料列背景與粗體邏輯 ---------------- */
+        /* 僅針對「有排名」的行套用淡淡底色 */
+        .row-optimistic-ranked { background-color: #e8f5e9 !important; }
+        .row-stable-ranked { background-color: #e3f2fd !important; }
+        
+        /* 🌟 「沒有排名」的資料列強制套用淺灰色背景 */
+        .row-unranked { background-color: #f7f7f7 !important; }
+        
+        /* 有排名的名稱改為粗體 */
+        .name-bold { font-weight: bold !important; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid py-2" style="max-width: 600px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <span class="text-secondary" style="font-weight: normal;">Pauty當前女人狀態</span>
+        <span class="badge bg-dark" id="updateStatus">同步中...</span>
+    </div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+            <div id="loading" class="loading-spy">⏳ 正在載入資料...</div>
+            <div class="table-responsive d-none" id="tableContainer">
+                <table class="table table-sm table-hover m-0" id="statusTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="sortable" data-type="text">名稱</th>
+                            <th scope="col" class="sortable text-center" data-type="number">排名</th>
+                            <th scope="col" class="sortable text-center" data-type="number">認識時間</th>
+                            <th scope="col" class="sortable" data-type="text">目前狀態</th>
+                            <th scope="col" class="sortable text-center" data-type="text">台積電</th>
+                            <th scope="col">備註</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// 你的 Google 試算表 CSV 串接網址
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWLFh7RJMhDXUDiC_E0H1Gtz0LVnXaGSRqyx4f-2poUAP-B2Zm8lyXkSa5_gs6SZHd5CJ620ZMzo2N/pub?gid=0&single=true&output=csv";
+
+// 解析狀態標籤
+function getStatusConfig(status) {
+    if (!status || status === '-') {
+        return { badge: 'badge-nodev', type: 'nodev', text: '目前無發展' };
+    }
+    if (status.includes('情況樂觀')) {
+        return { badge: 'badge-optimistic', type: 'optimistic', text: '情況樂觀' };
+    } else if (status.includes('情況穩定')) {
+        return { badge: 'badge-stable', type: 'stable', text: '情況穩定' };
+    } else if (status.includes('已涼薄')) {
+        return { badge: 'badge-cooled', type: 'cooled', text: '已涼薄' };
+    } else if (status.includes('已被涼薄')) {
+        return { badge: 'badge-ghosted', type: 'ghosted', text: '已被涼薄' };
+    } else if (status.includes('目前無發展')) {
+        return { badge: 'badge-nodev', type: 'nodev', text: '目前無發展' };
+    } else {
+        return { badge: 'badge-nodev', type: 'nodev', text: status };
+    }
+}
+
+// 根據「是否有排名」與「狀態」決定整行的底色樣式
+function getRowClass(hasRank, type) {
+    if (hasRank) {
+        if (type === 'optimistic') return 'row-optimistic-ranked';
+        if (type === 'stable') return 'row-stable-ranked';
+        return ''; // 若有排名但非樂觀/穩定，保持白底
+    }
+    return 'row-unranked'; // 沒有排名的資料一律套用淺灰色背景
+}
+
+function getTsmcText(isTsmc) {
+    return isTsmc === '是' ? 'V' : '';
+}
+
+// 精準解析時間權重函數
+function parseTimeWeight(timeStr) {
+    if (!timeStr || timeStr === '-') return 999999;
+    if (timeStr.includes('今年')) return 202600;
+    if (timeStr.includes('1年前')) return 202500;
+    if (timeStr.includes('2年前')) return 202400;
+
+    let matchYM = timeStr.match(/(\d{4})\/(\d{1,2})/);
+    if (matchYM) {
+        let year = parseInt(matchYM[1]);
+        let month = parseInt(matchYM[2]);
+        return 300000 - (year * 12 + month);
+    }
+
+    let matchY = timeStr.match(/(\d{4})/);
+    if (matchY) {
+        let year = parseInt(matchY[1]);
+        return 300000 - (year * 12);
+    }
+    
+    return 900000;
+}
+
+// 載入與解析 CSV 資料
+async function loadTableData() {
+    try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error('無法讀取試算表資料');
+        const data = await response.text();
+        
+        const bodyRows = parseCSV(data);
+        let parsedData = [];
+
+        bodyRows.forEach(row => {
+            if (row.length < 4 || !row[0].trim()) return; 
+            
+            const name = row[0].trim();
+            const rank = row[1].trim();
+            const time = row[2].trim();
+            const status = row[3].trim();
+            const isTsmc = row[4] ? row[4].trim() : '否';
+            const note = row[5] ? row[5].trim() : '-';
+
+            const hasRank = (rank !== '-' && rank !== '' && !isNaN(rank));
+            const sortRank = hasRank ? parseFloat(rank) : 99; 
+            const timeWeight = parseTimeWeight(time);         
+
+            parsedData.push({ name, rank, time, status, isTsmc, note, sortRank, timeWeight, hasRank });
+        });
+
+        // 預設排列邏輯：有排名在先，無排名在後（按時間由新到舊）
+        parsedData.sort((a, b) => {
+            if (a.sortRank !== b.sortRank) {
+                return a.sortRank - b.sortRank;
+            }
+            return a.timeWeight - b.timeWeight;
+        });
+
+        let html = '';
+        parsedData.forEach(item => {
+            const config = getStatusConfig(item.status);
+            const tsmcShow = getTsmcText(item.isTsmc);
+            const finalRowClass = getRowClass(item.hasRank, config.type);
+            const nameClass = item.hasRank ? 'name-bold' : ''; // 有排名的名稱加粗
+
+            html += `<tr class="${finalRowClass}">
+                <td class="${nameClass}">${item.name}</td>
+                <td class="text-center" data-val="${item.sortRank}">${item.rank}</td>
+                <td class="text-center" data-val="${item.timeWeight}">${item.time}</td>
+                <td><span class="badge ${config.badge}">${config.text}</span></td>
+                <td class="text-center fw-normal">${tsmcShow}</td>
+                <td class="note-cell">${item.note}</td>
+            </tr>`;
+        });
+
+        document.getElementById('tableBody').innerHTML = html;
+        document.getElementById('loading').classList.add('d-none');
+        document.getElementById('tableContainer').classList.remove('d-none');
+        document.getElementById('updateStatus').innerText = '已同步';
+
+    } catch (error) {
+        document.getElementById('loading').innerText = '❌ 載入失敗，請確認雲端試算表是否已發布。';
+        console.error(error);
+    }
+}
+
+// CSV 解析器
+function parseCSV(text) {
+    let lines = []; let row = [""]; let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        let c = text[i]; let next = text[i+1];
+        if (c === '"') {
+            if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+        } else if (c === ',' && !inQuotes) {
+            row.push("");
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+            if (c === '\r' && next === '\n') { i++; }
+            lines.push(row); row = [""];
+        } else { row[row.length - 1] += c; }
+    }
+    if (row.length > 1 || row[0] !== "") lines.push(row);
+    return lines.slice(1);
+}
+
+// 點擊欄位排序邏輯
+document.querySelectorAll('th.sortable').forEach(th => {
+    let asc = true;
+    th.addEventListener('click', () => {
+        const table = document.getElementById('statusTable');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const index = Array.from(th.parentNode.children).indexOf(th);
+        const type = th.getAttribute('data-type');
+
+        rows.sort((rowA, rowB) => {
+            let cellA = rowA.children[index];
+            let cellB = rowB.children[index];
+            let valA = cellA.getAttribute('data-val') || cellA.innerText.trim();
+            let valB = cellB.getAttribute('data-val') || cellB.innerText.trim();
+
+            if (type === 'number') {
+                return asc ? parseFloat(valA) - parseFloat(valB) : parseFloat(valB) - parseFloat(valA);
+            } else {
+                return asc ? valA.localeCompare(valB, 'zh-TW') : valB.localeCompare(valA, 'zh-TW');
+            }
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+        asc = !asc;
+    });
+});
+
+window.onload = loadTableData;
+</script>
+</body>
+</html>
