@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寰 & 璇的婚禮項目明細</title>
+    <!-- 引入 Google Fonts (Plus Jakarta Sans & Noto Sans TC) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* 頁首設計 */
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* 統計卡片區域 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* 主要卡片容器 */
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        /* 搜尋工具列 */
+        .toolbar {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            background-color: #fafafa;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 38px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 表格容器與樣式 (無垂直格線) */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            transition: background-color 0.15s ease;
+        }
+
+        tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 總計列樣式 */
+        tfoot tr {
+            background-color: #f1f5f9;
+        }
+
+        tfoot td {
+            font-weight: 700;
+            color: var(--text-main);
+            border-top: 2px solid var(--border-color);
+            padding: 18px 24px;
+            font-size: 15px;
+        }
+
+        .total-amount-cell {
+            color: var(--primary);
+            font-size: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* 載入狀態 */
+        .loading-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 16px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .search-box { max-width: 100%; }
+            th, td { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頁面標頭 -->
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">寰 & 璇的婚禮項目明細</h1>
+                <p class="page-subtitle">即時同步更新廠商與明細總額</p>
+            </div>
+        </header>
+
+        <!-- 統計卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">合作廠商數</div>
+                <div class="stat-value" id="vendorCount">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">花費總額</div>
+                <div class="stat-value" id="grandTotalHeader">NT$ -</div>
+            </div>
+        </div>
+
+        <!-- 主要表格內容區塊 -->
+        <main class="main-card">
+            <!-- 工具列 -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜尋廠商、項目或關鍵字..." onkeyup="filterTable()">
+                </div>
+            </div>
+
+            <!-- 載入狀態 -->
+            <div id="loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>資料同步中，請稍候...</p>
+            </div>
+
+            <!-- 資料表格 -->
+            <div class="table-responsive">
+                <table id="dataTable" style="display: none;">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                    <tfoot id="tableFooter"></tfoot>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = '1k3kKT-bUs-oQL14GYdQJ93OuxS67EtQlzN4W8qw8XPE';
+        const SHEET_NAME = '表單回應 1'; 
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+        let rawRowsData = [];
+        let totalColumnIndex = -1;
+        let vendorColumnIndex = -1;
+        let columnHeaders = [];
+
+        async function fetchGoogleSheetData() {
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                const jsonText = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+                const data = JSON.parse(jsonText);
+
+                const cols = data.table.cols;
+                const headerRow = document.getElementById('tableHeader');
+                
+                cols.forEach((col, idx) => {
+                    const label = (col.label || '').trim();
+                    columnHeaders.push(label);
+
+                    const th = document.createElement('th');
+                    th.textContent = label;
+                    headerRow.appendChild(th);
+
+                    // 自動識別「總額/金額」欄位
+                    if (label.includes('總額') || label.includes('金額') || label.includes('費用') || label.includes('預算')) {
+                        if (totalColumnIndex === -1) totalColumnIndex = idx;
+                    }
+
+                    // 自動識別「廠商」欄位
+                    if (label.includes('廠商') || label.includes('店家') || label.includes('公司') || label.includes('名稱')) {
+                        if (vendorColumnIndex === -1) vendorColumnIndex = idx;
+                    }
+                });
+
+                // 若未抓到專屬欄位，設定預設備援欄位
+                if (totalColumnIndex === -1 && cols.length > 0) totalColumnIndex = cols.length - 1;
+                if (vendorColumnIndex === -1 && cols.length > 0) vendorColumnIndex = 0; // 預設拿第一欄作為廠商欄
+
+                rawRowsData = data.table.rows;
+                renderTable(rawRowsData);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dataTable').style.display = 'table';
+
+            } catch (error) {
+                console.error('讀取資料失敗：', error);
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #ef4444;">資料讀取失敗，請確認試算表共用權限已開啟。</p>
+                `;
+            }
+        }
+
+        function renderTable(rows) {
+            const tbody = document.getElementById('tableBody');
+            const tfoot = document.getElementById('tableFooter');
+            tbody.innerHTML = '';
+            tfoot.innerHTML = '';
+
+            let grandTotal = 0;
+            const uniqueVendors = new Set(); // 使用 Set 來處理不重複廠商統計
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                let hasData = false;
+
+                row.c.forEach((cell, colIndex) => {
+                    const td = document.createElement('td');
+                    const cellValue = cell && cell.v !== null ? cell.v : null;
+                    const cellText = cell && cell.v !== null ? (cell.f || cell.v) : '';
+                    
+                    td.textContent = cellText;
+                    tr.appendChild(td);
+
+                    if (cellText !== '') hasData = true;
+
+                    // 1. 金額加總
+                    if (colIndex === totalColumnIndex && cellValue !== null) {
+                        if (typeof cellValue === 'number') {
+                            grandTotal += cellValue;
+                        } else if (typeof cellValue === 'string') {
+                            const cleanNum = parseFloat(cellValue.replace(/[^0-9.-]+/g, ""));
+                            if (!isNaN(cleanNum)) {
+                                grandTotal += cleanNum;
+                            }
+                        }
+                    }
+
+                    // 2. 廠商名稱不重複統計（自動去空字串與重複值）
+                    if (colIndex === vendorColumnIndex && cellText) {
+                        const vendorName = cellText.toString().trim();
+                        if (vendorName !== '') {
+                            uniqueVendors.add(vendorName);
+                        }
+                    }
+                });
+
+                if (hasData) {
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // 更新頂部卡片資訊（使用 Set.size 取得不重複廠商數量）
+            document.getElementById('vendorCount').textContent = `${uniqueVendors.size} 家`;
+            document.getElementById('grandTotalHeader').textContent = `NT$ ${grandTotal.toLocaleString('zh-TW')}`;
+
+            // 繪製底層加總列 (僅專屬欄位顯示)
+            const footerRow = document.createElement('tr');
+            columnHeaders.forEach((_, colIndex) => {
+                const td = document.createElement('td');
+                if (colIndex === totalColumnIndex) {
+                    td.textContent = `NT$ ${grandTotal.toLocaleString('zh-TW')}`;
+                    td.className = 'total-amount-cell';
+                } else if (colIndex === 0) {
+                    td.textContent = '總計';
+                } else {
+                    td.textContent = '';
+                }
+                footerRow.appendChild(td);
+            });
+            tfoot.appendChild(footerRow);
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filteredRows = rawRowsData.filter(row => {
+                if (!row.c) return false;
+                return row.c.some(cell => {
+                    const text = cell && cell.v !== null ? (cell.f || cell.v).toString().toLowerCase() : '';
+                    return text.includes(query);
+                });
+            });
+            renderTable(filteredRows);
+        }
+
+        fetchGoogleSheetData();
+    </script>
+</body>
+</html>
