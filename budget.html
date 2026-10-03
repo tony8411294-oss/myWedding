@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <!-- 引入 Google Fonts (Plus Jakarta Sans & Noto Sans TC) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
             --primary: #4f46e5;
@@ -252,17 +255,33 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 640px) {
-            body { padding: 16px 12px; }
-            .page-header { flex-direction: column; align-items: flex-start; }
-            .search-box { max-width: 100%; }
-            th, td { padding: 12px 16px; }
+            body {
+                padding: 16px 12px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            th,
+            td {
+                padding: 12px 16px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -292,9 +311,11 @@
             <div class="toolbar">
                 <div class="search-box">
                     <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <input type="text" id="searchInput" class="search-input" placeholder="搜尋廠商、項目或關鍵字..." onkeyup="filterTable()">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜尋廠商、項目或關鍵字..."
+                        onkeyup="filterTable()">
                 </div>
             </div>
 
@@ -319,7 +340,7 @@
 
     <script>
         const SPREADSHEET_ID = '1k3kKT-bUs-oQL14GYdQJ93OuxS67EtQlzN4W8qw8XPE';
-        const SHEET_NAME = '表單回應 1'; 
+        const SHEET_NAME = '表單回應 1';
         const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let rawRowsData = [];
@@ -331,13 +352,13 @@
             try {
                 const response = await fetch(url);
                 const text = await response.text();
-                
+
                 const jsonText = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
                 const data = JSON.parse(jsonText);
 
                 const cols = data.table.cols;
                 const headerRow = document.getElementById('tableHeader');
-                
+
                 cols.forEach((col, idx) => {
                     const label = (col.label || '').trim();
                     columnHeaders.push(label);
@@ -384,45 +405,34 @@
                 return '';
             }
 
-            const isNoteColumn = colIndex === columnHeaders.length - 1 || /備註|說明|註/i.test(columnHeaders[colIndex] || '');
+            const text = String(cellValue).trim();
+            if (!text) return '';
 
+            const isNoteColumn =
+                colIndex === columnHeaders.length - 1 ||
+                /備註|說明|註/i.test(columnHeaders[colIndex] || '');
+
+            // 備註欄：一律當純文字，不要把裡面的數字拿來計算
             if (isNoteColumn) {
-                if (typeof cellValue === 'string') {
-                    const trimmed = cellValue.trim();
-                    if (!trimmed) {
-                        return '';
-                    }
-
-                    const numericValue = Number(trimmed.replace(/[^0-9.-]+/g, ''));
-                    if (!isNaN(numericValue) && Math.abs(numericValue) > 1000) {
-                        return numericValue.toLocaleString('zh-TW');
-                    }
-
-                    return trimmed;
-                }
-
-                return String(cellValue);
+                return text;
             }
 
+            // 真正的數字才做千分位
             if (typeof cellValue === 'number') {
-                return cellValue > 1000 ? cellValue.toLocaleString('zh-TW') : String(cellValue);
+                return cellValue > 1000
+                    ? cellValue.toLocaleString('zh-TW')
+                    : String(cellValue);
             }
 
-            if (typeof cellValue === 'string') {
-                const trimmed = cellValue.trim();
-                if (!trimmed) {
-                    return '';
-                }
-
-                const numericValue = Number(trimmed.replace(/[^0-9.-]+/g, ''));
-                if (!isNaN(numericValue) && Math.abs(numericValue) > 1000) {
-                    return numericValue.toLocaleString('zh-TW');
-                }
-
-                return trimmed;
+            // 字串只有「純數字」才格式化
+            if (/^-?\d+(?:\.\d+)?$/.test(text)) {
+                const numericValue = Number(text);
+                return Math.abs(numericValue) > 1000
+                    ? numericValue.toLocaleString('zh-TW')
+                    : text;
             }
 
-            return String(cellValue);
+            return text;
         }
 
         function renderTable(rows) {
@@ -444,7 +454,7 @@
                     const displayValue = cell && cell.v !== null ? (cell.f || cell.v) : '';
                     const cellText = formatCellValue(displayValue, colIndex);
                     const isNoteColumn = colIndex === columnHeaders.length - 1 || /備註|說明|註/i.test(columnHeaders[colIndex] || '');
-                    
+
                     td.textContent = cellText;
                     td.className = isNoteColumn ? 'wrap-cell' : 'nowrap-cell';
                     tr.appendChild(td);
@@ -516,4 +526,5 @@
         fetchGoogleSheetData();
     </script>
 </body>
+
 </html>
