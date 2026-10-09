@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f4">
+  <meta name="description" content="薛靖寰與王季璇的婚紗照片，收藏我們一起走過的美好時光。">
+  <title>婚紗相簿｜薛靖寰 &amp; 王季璇</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="hero-banner" aria-label="薛靖寰與王季璇的婚紗照">
+    <img class="hero-image" src="https://pub-987a56d204d3452a898d115639f5bece.r2.dev/images/%E5%B0%81%E9%9D%A2.png" alt="薛靖寰與王季璇的婚紗相簿封面">
+  </section>
+
+  <main class="page">
+    <div class="gallery" id="gallery" aria-label="婚紗照片"></div>
+  </main>
+
+  <section class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="照片檢視器" aria-hidden="true" hidden>
+    <button class="viewer-close" id="close-viewer" type="button" aria-label="關閉照片">×</button>
+    <button class="viewer-nav viewer-prev" id="previous-photo" type="button" aria-label="上一張照片">‹</button>
+    <figure class="viewer-figure">
+      <img class="viewer-image" id="viewer-image" alt="">
+      <figcaption class="viewer-caption">
+        <span>薛靖寰 &amp; 王季璇</span>
+        <span class="viewer-counter" id="viewer-counter"></span>
+      </figcaption>
+    </figure>
+    <button class="viewer-nav viewer-next" id="next-photo" type="button" aria-label="下一張照片">›</button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
