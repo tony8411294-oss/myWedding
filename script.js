@@ -79,15 +79,21 @@ const viewerCounter = document.getElementById("viewer-counter");
 const closeButton = document.getElementById("close-viewer");
 const previousButton = document.getElementById("previous-photo");
 const nextButton = document.getElementById("next-photo");
+const heroImage = document.querySelector(".hero-image");
 
 let currentPhoto = 0;
 let previouslyFocusedElement = null;
 let touchStartX = 0;
+const unavailablePhotos = new Set();
+const galleryTiles = new Map();
+
+heroImage.addEventListener("error", () => {
+  heroImage.parentElement.hidden = true;
+});
 
 photos.forEach((file, index) => {
   const button = document.createElement("button");
   const image = document.createElement("img");
-  const errorMessage = document.createElement("span");
   const number = String(index + 1).padStart(2, "0");
 
   button.className = "photo-tile";
@@ -100,25 +106,55 @@ photos.forEach((file, index) => {
   image.loading = index < 8 ? "eager" : "lazy";
   image.decoding = "async";
   image.addEventListener("error", () => {
-    errorMessage.hidden = false;
+    markPhotoUnavailable(index);
   });
 
-  errorMessage.className = "photo-error";
-  errorMessage.textContent = `照片 ${number} 暫時無法載入`;
-  errorMessage.hidden = true;
-
-  button.append(image, errorMessage);
+  button.append(image);
   gallery.append(button);
+  galleryTiles.set(index, button);
 });
 
+function getAvailablePhotos() {
+  return photos
+    .map((_, index) => index)
+    .filter(index => !unavailablePhotos.has(index));
+}
+
 function updateViewer() {
-  const number = String(currentPhoto + 1).padStart(2, "0");
+  const availablePhotos = getAvailablePhotos();
+  if (availablePhotos.length === 0) {
+    closeViewer();
+    return;
+  }
+
+  if (!availablePhotos.includes(currentPhoto)) {
+    currentPhoto = availablePhotos.find(index => index > currentPhoto) ?? availablePhotos[0];
+  }
+
+  const number = String(availablePhotos.indexOf(currentPhoto) + 1).padStart(2, "0");
   viewerImage.src = `${photoBaseUrl}${photos[currentPhoto]}`;
   viewerImage.alt = `婚紗照片 ${number}`;
-  viewerCounter.textContent = `${number} / ${String(photos.length).padStart(2, "0")}`;
+  viewerCounter.textContent = `${number} / ${String(availablePhotos.length).padStart(2, "0")}`;
+}
+
+function markPhotoUnavailable(index) {
+  if (unavailablePhotos.has(index)) return;
+
+  unavailablePhotos.add(index);
+  const tile = galleryTiles.get(index);
+  if (tile) {
+    tile.remove();
+    galleryTiles.delete(index);
+  }
+
+  if (!lightbox.hidden && currentPhoto === index) {
+    updateViewer();
+  }
 }
 
 function openPhoto(index) {
+  if (unavailablePhotos.has(index)) return;
+
   currentPhoto = index;
   previouslyFocusedElement = document.activeElement;
   updateViewer();
@@ -139,13 +175,24 @@ function closeViewer() {
 }
 
 function showNextPhoto(direction) {
-  currentPhoto = (currentPhoto + direction + photos.length) % photos.length;
+  const availablePhotos = getAvailablePhotos();
+  if (availablePhotos.length === 0) {
+    closeViewer();
+    return;
+  }
+
+  const currentPosition = availablePhotos.indexOf(currentPhoto);
+  const nextPosition = (currentPosition + direction + availablePhotos.length) % availablePhotos.length;
+  currentPhoto = availablePhotos[nextPosition];
   updateViewer();
 }
 
 closeButton.addEventListener("click", closeViewer);
 previousButton.addEventListener("click", () => showNextPhoto(-1));
 nextButton.addEventListener("click", () => showNextPhoto(1));
+viewerImage.addEventListener("error", () => {
+  markPhotoUnavailable(currentPhoto);
+});
 
 lightbox.addEventListener("click", event => {
   if (event.target === lightbox) closeViewer();

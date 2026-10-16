@@ -90,20 +90,6 @@ button {
   outline-offset: 3px;
 }
 
-.photo-error {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 12px;
-  color: #716d65;
-  font-size: 12px;
-}
-
-.photo-error[hidden] {
-  display: none;
-}
-
 .lightbox[hidden] {
   display: none;
 }
